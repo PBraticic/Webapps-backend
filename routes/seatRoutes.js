@@ -1,17 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Seat = require('../schemas/seatSchema');
-const User = require('../schemas/userSchema'); // Import User schema
-
-router.get('/', async (req, res) => {
-  const seats = await Seat.find().populate('userId', 'username userType'); // Include 'userType' when populating 'userId'
-  res.json({ seats });
-});
-
+const User = require('../schemas/userSchema'); 
 
 router.post('/reserve/:seatId', async (req, res) => {
   const seatId = req.params.seatId;
-  const userId = req.body.userId; // Get userId from the request body
+  const userId = req.body.userId; 
 
   if (!userId) {
     return res.status(403).json({ message: 'You are not logged in' });
@@ -35,7 +29,7 @@ router.post('/reserve/:seatId', async (req, res) => {
 
 router.post('/unreserve/:seatId', async (req, res) => {
   const seatId = req.params.seatId;
-  const userId = req.body.userId; // Get userId from the request body
+  const userId = req.body.userId; 
 
   if (!userId) {
     return res.status(403).json({ message: 'You are not logged in' });
@@ -56,15 +50,40 @@ router.post('/unreserve/:seatId', async (req, res) => {
 
   res.json({ message: 'Seat unreserved successfully' });
 });
+router.post('/unreserveByEmployee/:seatId', async (req, res) => {
+  const seatId = req.params.seatId;
+  const user = await User.findById(req.body.userId); 
+
+  if (!user || user.userType !== 'employee') {
+    return res.status(403).json({ message: 'Only employees can remove reservations' });
+  }
+
+  const seat = await Seat.findById(seatId);
+  if (!seat) {
+    return res.status(404).json({ message: 'Seat not found' });
+  }
+
+  if (!seat.reserved) {
+    return res.status(409).json({ message: 'Seat is not reserved' });
+  }
+
+  seat.reserved = false;
+  seat.userId = null;
+  await seat.save();
+
+  res.json({ message: 'Seat unreserved successfully' });
+});
 
 
 router.get('/:room', async (req, res) => {
   const room = req.params.room;
-  const seats = await Seat.find({ room: room }).populate('userId', 'username userType'); 
-  // Extract the film name from the first seat as all seats in the same room should have the same film.
+  const seats = await Seat.find({ room: room }).populate('userId', 'username userType');
+
   const film = seats[0] ? seats[0].film : '';
-  res.json({ seats, film });
+  const dateTime = seats[0] ? seats[0].dateTime : '';  
+  res.json({ seats, film, dateTime });  
 });
+
 
 router.post('/:room/setFilm', async (req, res) => {
   const room = req.params.room;
@@ -72,6 +91,14 @@ router.post('/:room/setFilm', async (req, res) => {
   await Seat.updateMany({ room: room }, { film: film });
   res.json({ message: 'Film set successfully' });
 });
+
+router.post('/:room/setDateTime', async (req, res) => {
+  const room = req.params.room;
+  const dateTime = req.body.dateTime;
+  await Seat.updateMany({ room: room }, { dateTime: dateTime });
+  res.json({ message: 'Date/time set successfully' });
+});
+
 
 
 module.exports = router;

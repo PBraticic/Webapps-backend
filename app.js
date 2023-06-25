@@ -44,9 +44,9 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-// Add the createSeats function here
+
 async function createSeats() {
-  const rooms = 5;
+  const rooms = 10;
   const seatsPerRoom = 30;
   for (let i = 1; i <= rooms; i++) {
     const seatsInRoom = await Seat.countDocuments({ room: i });
@@ -62,8 +62,18 @@ async function createSeats() {
 
 createSeats();
 
+
 app.use('/user', userRoutes);
 app.use('/seat', seatRoutes);
+
+app.get('/logout', (req, res) => {
+  res.clearCookie('loginToken');
+  res.clearCookie('username');
+  res.clearCookie('userType');
+  res.clearCookie('userId');
+  res.json({ status: "Logged out" });
+});
+
 
 app.listen(port, async () => {
   console.log(`Running on port ${port}`);
