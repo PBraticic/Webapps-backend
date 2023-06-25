@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Seat = require('../schemas/seatSchema');
-const User = require('../schemas/userSchema'); 
+const User = require('../schemas/userSchema');
 
 router.post('/reserve/:seatId', async (req, res) => {
   const seatId = req.params.seatId;
-  const userId = req.body.userId; 
+  const userId = req.body.userId;
 
   if (!userId) {
     return res.status(403).json({ message: 'You are not logged in' });
@@ -29,7 +29,7 @@ router.post('/reserve/:seatId', async (req, res) => {
 
 router.post('/unreserve/:seatId', async (req, res) => {
   const seatId = req.params.seatId;
-  const userId = req.body.userId; 
+  const userId = req.body.userId;
 
   if (!userId) {
     return res.status(403).json({ message: 'You are not logged in' });
@@ -52,7 +52,7 @@ router.post('/unreserve/:seatId', async (req, res) => {
 });
 router.post('/unreserveByEmployee/:seatId', async (req, res) => {
   const seatId = req.params.seatId;
-  const user = await User.findById(req.body.userId); 
+  const user = await User.findById(req.body.userId);
 
   if (!user || user.userType !== 'employee') {
     return res.status(403).json({ message: 'Only employees can remove reservations' });
@@ -80,8 +80,8 @@ router.get('/:room', async (req, res) => {
   const seats = await Seat.find({ room: room }).populate('userId', 'username userType');
 
   const film = seats[0] ? seats[0].film : '';
-  const dateTime = seats[0] ? seats[0].dateTime : '';  
-  res.json({ seats, film, dateTime });  
+  const dateTime = seats[0] ? seats[0].dateTime : '';
+  res.json({ seats, film, dateTime });
 });
 
 

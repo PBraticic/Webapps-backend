@@ -9,12 +9,12 @@ router.post("/register", async (req, res) => {
 
   if (!emailExists) {
     let user = new User();
-    user.username = req.body.username; 
+    user.username = req.body.username;
     user.email = req.body.email;
-    user.password = req.body.password; 
-    user.userType = req.body.userType; 
+    user.password = req.body.password;
+    user.userType = req.body.userType;
 
-    await user.save();  
+    await user.save();
     return res.status(200).json({ message: "Registration successful" });
   } else {
     return res
@@ -49,7 +49,7 @@ router.post("/login", async (req, res) => {
 
   if (req.body.password == user.password) {
     user.loginToken = uuidv4();
-    console.log(user); 
+    console.log(user);
 
     await user.save();
 
@@ -57,7 +57,7 @@ router.post("/login", async (req, res) => {
       .cookie("loginToken", user.loginToken, { sameSite: "none", secure: true })
       .cookie("username", user.username, { sameSite: "none", secure: true })
       .cookie("userType", user.userType, { sameSite: "none", secure: true })
-      .cookie("userId", user._id, { sameSite: "none", secure: true }) 
+      .cookie("userId", user._id, { sameSite: "none", secure: true })
       .status(200)
       .json({
         message: "OK",
@@ -66,8 +66,8 @@ router.post("/login", async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
         },
-        userType: user.userType, 
-        userId: user._id, 
+        userType: user.userType,
+        userId: user._id,
       });
   } else {
     return res.status(401).json({ message: "Unauthorized" });

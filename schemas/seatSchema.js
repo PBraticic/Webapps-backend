@@ -5,7 +5,7 @@ const seatSchema = new mongoose.Schema({
   room: Number,
   reserved: { type: Boolean, default: false },
   film: { type: String, default: '' },
-  dateTime: { type: Date }, 
+  dateTime: { type: Date },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
